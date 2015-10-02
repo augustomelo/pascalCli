@@ -1,0 +1,19 @@
+Tutorial
+
+// First install mono-complete
+// With this you get the full package with ilasm, and the equivalent o ildasm (monodis)
+
+sudo apt-get install mono-complete
+
+// Tansforming a c# program to assembly.
+// First you have to compile it
+mono-csc file.cs
+
+// Disasembly it
+monodis generetedByMono-cs.exe --output=filename.il
+
+//To compile it
+ilasm programil.il
+
+//
+mono generetadByIlasm.exe

@@ -1,8 +1,8 @@
 using System;
 
-class Test {
-	static int numero(){
-		return 90;
+public static class Test {
+	public static float numero(){
+		return 1234.0F;
 	}
 
 	static void Main() {

@@ -113,7 +113,7 @@ expr5: expr5 MAIOR expr6 { ExpBin (Maior, $1, $3) }
 
 expr6: expr6 MENOR expr7 { ExpBin (Menor, $1, $3) }
     | expr7 { $1 };
-/
+
 expr7: expr7 MAIORIGUAL expr8 { ExpBin(MaiorIgual, $1, $3) }
     | expr8 { $1 };
 

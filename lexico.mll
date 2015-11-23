@@ -23,7 +23,7 @@ let digitofloat = digito+ ['.'] digito+
 let letra = [ 'a'-'z' 'A' - 'Z']
 let identificador = letra ( letra | digito | '_' )*
 let booleano = "true" | "false"
-let caracter = [digito letra] 
+let caracter = (digito | letra)
 
 rule token = parse
   [' ' '\t']                 { token lexbuf }
@@ -53,10 +53,10 @@ rule token = parse
   | "="                      { IGUAL }
   | "<>"                     { DIFERENTE }
   | "neg"                    { NEG }
-  | "and"                    { AND }
-  | "or"                     { OR }
+  | "and"                    { E }
+  | "or"                     { OU }
   | "xor"                    { XOR }
-  | "not"                    { NOT }
+  | "not"                    { NAO }
   | "mod"                    { MOD }
   | "while"                  { WHILE }
   | "do"                     { DO }

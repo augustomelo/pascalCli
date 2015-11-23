@@ -8,14 +8,15 @@ open Asabs;;
 %token <char> CHAR
 %token <string> STRING
 %token <string> ID 
-%token TBOOL TINT TFLOAT TCHAR TSTRING 
+%token TBOOL TINT TFLOAT TCHAR TSTRING TRUE FALSE
 
 %token MAIS MENOS VEZES DIV MOD
+%token MAISATRIB INCR
 %token NEG MAIOR MENOR MAIORIGUAL MENORIGUAL IGUAL DIFERENTE
-%token NOT AND OR XOR 
+%token NAO E OU XOR 
 
-%token APAR FPAR VIRG PTVIRG PTPT
-%token PF ATRIB 
+%token APAR FPAR VIRG PTVIRG PTPT ACOL FCOL
+%token PF ATRIB  ACOL FCOL
 
 %token PROGRAM BEGIN END
 %token VAR
@@ -26,135 +27,159 @@ open Asabs;;
 %token EOF
 
 %start programa
-%type <Asabs.decfn> programa
+%type <Asabs.expr Asabs.programa> programa
 
 %%
-programa:  funcao EOF { $1 }
+programa: funcao EOF { [$1] }
     
-funcao :PROGRAM ID PTVIRG
-        VAR declaracoes
+funcao: PROGRAM ID PTVIRG
+        declara_variaveis
         BEGIN
-            comandos 
+            comandos
         END PF
-        { DecFun
-            { fn_nome    = $2
-            (*fn_formais = $4 Parametros*)
-            fn_corpo     = $5;
-            (*fn_locais  = []*)
+        { 
+            DecFun { fn_nome    = $2;
+                   (*fn_formais = $4 Parametros*)
+                     fn_locais  = $4;
+                     fn_corpo   = $6;
             }
         }
 
+declara_variaveis: { [] }
+    | VAR declaracoes { $2 }
+
 declaracoes: { [] }
-    | declaracoes declist {$1 @ [$2]}
+    | declaracoes declist {$1 @ $2}
     ;
 
 declist: 
-    declaracaolist PTPT tipo PTVIRG {ListaDeclaracao{vars = $1, tipo = $3}}
+    declaracaolist PTPT tipo PTVIRG {
+        List.map (fun n -> DecVar {nome = n; tipo = $3; valor = ExpInt 0}) $1
+    }
 
-declaracaolist: variavel VIRG declaracaolist { Dec (ExpVar $1)}
-    | variavel { Dec (ExpVar $1) }
+declaracaolist: variavel VIRG declaracaolist { $1 :: $3 } 
+    | variavel { [$1] }
     ;
 
-tipo: TBOOL { TBool }
-    | TINT { TInt }
-    | TFLOAT { TFloat }
-    | TCHAR {TCar}
-    | TSTRING {TString}
+tipo: TBOOL   { TBool }
+    | TINT    { TInt }
+    | TFLOAT  { TFloat }
+    | TCHAR   { TCar}
+    | TSTRING { TString}
 
-comandos: { [] }
-    | comandos comando { $1 @ [$2]}
+
+variavel: ID { $1 }
     ;
 
-comando: cmd_atrib { $1 }
-    | cmd_if_com_else {$1}
-    | cmd_if_sem_else {$1}
-    | cmd_while {$1}
-    | cmd_print {$1}
-    | cmd_read {$1}
-    ;
 
-cmd_atrib: expressao ATRIB expressao PTVIRG {
-    CmdAtrib($1, $3)    
+comandos:  inicia_variaveis lista_de_comandos { Bloco ($1, $2) }
+
+inicia_variaveis: { [] }
+    | inicia_variaveis atribui_variaveis { $1 @ [$2] }
+
+atribui_variaveis: ID ATRIB expressao PTVIRG { 
+   DecVar { nome = $1; tipo = TInt; valor = $3} 
 }
 
-cmd_if_com_else: IF APAR expressao FPAR THEN
-    BEGIN comandos END
-    ELSE BEGIN comandos END PTVIRG { CmdIf($3, $7, Some($11)) }
 
-cmd_if_sem_else: IF APAR expressao FPAR THEN
-    BEGIN comandos END PTVIRG { CmdIf($3, $7, None) } 
+lista_de_comandos: { [] }
+    | lista_de_comandos comando { $1 @ [$2] }
 
-cmd_while: WHILE APAR expressao FPAR DO
-    BEGIN comandos END PTVIRG { CmdWhile($3, $7) }
- 
-cmd_print:
-    WRITE APAR expressao FPAR  PTVIRG { CmdWrite ($3) }
+comando: cmd_selecao    { $1 }
+       | cmd_atribuicao { $1 }
+       | comandos       { $1 }
+       | cmd_iteracao   { $1 }
 
-cmd_read:
-    READLN APAR expressao FPAR PTVIRG { CmdReadln ($3) }
+cmd_selecao: IF APAR expressao FPAR comando { If ($3, $5, None)  }
+       | IF APAR expressao FPAR comando ELSE comando  { If ($3, $5, Some $7)  }
+       /* acrescentar switch case */
 
-expressao: expressao OR expr1 {ExpBin (Or, $1, $3) }
-    | expr1 {$1};
+cmd_atribuicao: cmd_atrib PTVIRG { $1 }
 
-expr1: expr1 AND expr2 {ExpBin (And, $1, $3)}
-    | expr2 {$1};
+cmd_atrib: mutavel ATRIB expressao    { Atrib ($1, $3) }
+       | mutavel MAISATRIB expressao  { Atrib ($1, ExpBin (Mais, $1, $3))  }
+       | mutavel INCR  { Atrib ($1, ExpBin (Mais, $1, ExpInt 1)) }
+       /* Completar com outros operadores de atribuição */
 
-expr2: expr2 XOR expr3 { ExpBin (Xor, $1, $3) }
-    | expr3 {$1};
+lista_de_comandos:  { [] }
+       | lista_de_comandos comando { $1 @ [$2] }
 
-expr3: NOT expr4 { ExpUna (Not, $2) }
-    | expr4 {$1};
+cmd_iteracao: WHILE APAR expressao FPAR comando { While ($3, $5)  }
+       | FOR mutavel TO expressao comando { For ($2, $4, $5) } 
+       /* Acrescentar do-while */
 
-expr4: expr4 IGUAL expr5 { ExpBin (Igual, $1, $3) }
-    | expr5 {$1};
+expressao: exp_ou  { $1 }
 
-expr5: expr5 MAIOR expr6 { ExpBin (Maior, $1, $3) }
-    | expr6 { $1 };
+exp_ou: exp_ou OU exp_e { ExpBin(Ou, $1, $3) }
+			| exp_e           { $1 }
 
-expr6: expr6 MENOR expr7 { ExpBin (Menor, $1, $3) }
-    | expr7 { $1 };
+exp_e: exp_e E exp_not { ExpBin(E, $1, $3) }
+     | exp_not         { $1 }
 
-expr7: expr7 MAIORIGUAL expr8 { ExpBin(MaiorIgual, $1, $3) }
-    | expr8 { $1 };
+exp_not: NAO exp_not    { ExpUna(Nao, $2) }
+  		 | exp_relacional { $1 }
 
-expr8: expr8 MENORIGUAL expr9 { ExpBin (MenorIgual, $1, $3) }
-    | expr9 { $1 };
+exp_relacional: exp_soma op_rel exp_soma { ExpBin($2, $1, $3) }
+			 | exp_soma { $1 }
 
-expr9: expr9 VEZES expr10 { ExpBin (Mult, $1, $3) }
-    | expr10 { $1 };
+op_rel: MENOR      { Menor }
+	 | MAIOR       { Maior }
+     /* acrescentar outros operadores relacionais */
 
-expr10: expr10 DIV expr11 { ExpBin (Div, $1, $3) }
-    | expr11 { $1 };
+exp_soma: exp_soma op_soma parcela { ExpBin($2, $1, $3) }
+			  | parcela  { $1 }
 
-expr11: expr11 MAIS expr12 { ExpBin (Mais, $1, $3) }
-    | expr12 { $1 };
+op_soma: MAIS  { Mais  }
+	   | MENOS { Menos }
 
-expr12: expr12 MENOS expr13 { ExpBin (Menos, $1, $3) }
-    | expr13 { $1 };
+parcela: parcela op_mult exp_unaria { ExpBin($2, $1, $3) }
+	   | exp_unaria   { $1 }
 
-expr13: expr13 MOD expr14 { ExpBin (Mod, $1, $3) }
-    | expr14 { $1 };
+op_mult: VEZES { Mult }
+	   | DIV   { Div  }
+	   | MOD   { Mod  }
 
-expr14: NEG expr15 { ExpUna (Neg, $2) }
-    | expr15 { $1 };
+exp_unaria: op_unario exp_unaria { ExpUna($1, $2) }
+		 | fator  { $1 }
 
-expr15: expr15 DIFERENTE expr16 { ExpBin (Diferente, $1, $3) }
-    | expr16 {$1};
+op_unario: MENOS { MenosUm }
 
-expr16: operando { $1 }
-    | APAR expressao FPAR { $2 }
-    | variavel { (ExpVar $1) };
+fator: imutavel { $1 }
+	 | mutavel  { $1 }
+
+mutavel: ID   {  ExpVar (VarSimples $1) }
+	   | ID ACOL expressao FCOL { ExpVar (VarVetor (VarSimples $1, $3)) }
+
+imutavel: APAR expressao FPAR { $2 }
+		 | chamada   { $1 }
+		 | constante { $1 }
+
+chamada: ID APAR args FPAR { ExpChamada ($1, $3) }
+
+args: /* vazio */     { [] }
+		 | lista_de_args  { $1 }
+
+lista_de_args: lista_de_args VIRG expressao { $1 @ [$3] }
+		 | expressao { [ $1 ] }
+
+constante: INT { ExpInt $1    }
+    | FLOAT    { ExpFloat $1 }
+    | CHAR     { ExpChar $1 }
+    | STRING   { ExpString $1 }
+    | TRUE     { ExpTrue      } /* a sua linguagem podem não ter valores booleanos */
+    | FALSE    { ExpFalse     }
 
 
 operando: BOOL { ExpBool $1 }
-    | INT { ExpInt $1 }
-    | FLOAT { ExpFloat $1 }
-    | CHAR { ExpChar $1 }
-    | STRING { ExpString $1 }
+    | INT      { ExpInt $1 }
+    | FLOAT    { ExpFloat $1 }
+    | CHAR     { ExpChar $1 }
+    | STRING   { ExpString $1 }
     ;
 
-variavel: ID { VarSimples $1}
-    ;
+
+
+
 
 
 

@@ -32,13 +32,16 @@ rule token = parse
   | "/*"                     { comentario 0 lexbuf; }
   | "program"                { PROGRAM }
   | "function"               { FUNCAO }
+  | "procedure"              { PROCEDURE }
   | "return"                 { RETURN }
   | "begin"                  { BEGIN }
   | "end"                    { END }
-  | ':'                      { PTPT}
-  | '.'                      { PF}
+  | ':'                      { PTPT }
+  | '.'                      { PF }
   | '('                      { APAR }
   | ')'                      { FPAR }
+  | '['                      { ACOL }
+  | ']'                      { FCOL }
   | ','                      { VIRG }
   | ';'                      { PTVIRG }
   | '+'                      { MAIS }
@@ -47,16 +50,16 @@ rule token = parse
   | '/'                      { DIV }
   | '>'                      { MAIOR }
   | '<'                      { MENOR }
+  | "true"                   { TRUE }
+  | "false"                  { FALSE }
   | ":="                     { ATRIB }
   | ">="                     { MAIORIGUAL }
   | "<="                     { MENORIGUAL }
   | "="                      { IGUAL }
   | "<>"                     { DIFERENTE }
-  | "neg"                    { NEG }
-  | "and"                    { E }
-  | "or"                     { OU }
-  | "xor"                    { XOR }
-  | "not"                    { NAO }
+  | "and"                    { AND }
+  | "or"                     { OR }
+  | "not"                    { NOT }
   | "mod"                    { MOD }
   | "while"                  { WHILE }
   | "do"                     { DO }
@@ -72,7 +75,7 @@ rule token = parse
   | "readln"                 { READLN }
   | "then"                   { THEN }
   | "else"                   { ELSE }
-  | "var"                    { VAR}
+  | "var"                    { VAR }
   | '\'' caracter '\'' as c  { CHAR (String.get c 1) }
   | '\"'(caracter+ as s)'\"' { STRING (s) }
   | booleano as bool         { BOOL (bool_of_string bool) }
@@ -85,19 +88,19 @@ rule token = parse
   | eof                      { EOF }
 
 and comentario n = parse
-      "*/" {if n=0 then token lexbuf
+      "*/" { if n=0 then token lexbuf
               else comentario (n - 1) lexbuf }
     | "/*" { comentario (n + 1) lexbuf; }
     | _    { comentario  n lexbuf }
-    | eof  {failwith "Comentários não foram fechados"}
+    | eof  { failwith "Comentários não foram fechados" }
 
 and strings buffer = parse
-    | '"'       {Buffer.contents buffer }
-    | "\\t"     { Buffer.add_char buffer '\t'; strings buffer lexbuf}
-    | "\\n"     { Buffer.add_char buffer '\n'; strings buffer lexbuf}
-    | '\\' '"'  { Buffer.add_char buffer '"'; strings buffer lexbuf}
-    | '\\' '\\' { Buffer.add_char buffer '\\'; strings buffer lexbuf}
-    | _ as c    { Buffer.add_char buffer c; strings buffer lexbuf}
+    | '"'       { Buffer.contents buffer }
+    | "\\t"     { Buffer.add_char buffer '\t'; strings buffer lexbuf }
+    | "\\n"     { Buffer.add_char buffer '\n'; strings buffer lexbuf }
+    | '\\' '"'  { Buffer.add_char buffer '"'; strings buffer lexbuf }
+    | '\\' '\\' { Buffer.add_char buffer '\\'; strings buffer lexbuf }
+    | _ as c    { Buffer.add_char buffer c; strings buffer lexbuf }
     | eof       { failwith "String nao foi fechada" }
 
  

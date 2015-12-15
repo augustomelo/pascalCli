@@ -33,7 +33,6 @@ rule token = parse
   | "program"                { PROGRAM }
   | "function"               { FUNCAO }
   | "procedure"              { PROCEDURE }
-  | "return"                 { RETURN }
   | "begin"                  { BEGIN }
   | "end"                    { END }
   | ':'                      { PTPT }
@@ -78,6 +77,10 @@ rule token = parse
   | "var"                    { VAR }
   | '\'' caracter '\'' as c  { CHAR (String.get c 1) }
   | '\"'(caracter+ as s)'\"' { STRING (s) }
+  | '"'                      { let buffer = Buffer.create 1 in 
+											 let str = leia_string buffer lexbuf
+											 in STRING (str) }
+
   | booleano as bool         { BOOL (bool_of_string bool) }
   | digitofloat+ as f        { FLOAT (float_of_string f) }
   | int as num               { let numero = int_of_string num in
@@ -94,13 +97,13 @@ and comentario n = parse
     | _    { comentario  n lexbuf }
     | eof  { failwith "Comentários não foram fechados" }
 
-and strings buffer = parse
+and leia_string buffer = parse
     | '"'       { Buffer.contents buffer }
-    | "\\t"     { Buffer.add_char buffer '\t'; strings buffer lexbuf }
-    | "\\n"     { Buffer.add_char buffer '\n'; strings buffer lexbuf }
-    | '\\' '"'  { Buffer.add_char buffer '"'; strings buffer lexbuf }
-    | '\\' '\\' { Buffer.add_char buffer '\\'; strings buffer lexbuf }
-    | _ as c    { Buffer.add_char buffer c; strings buffer lexbuf }
+    | "\\t"     { Buffer.add_char buffer '\t'; leia_string buffer lexbuf }
+    | "\\n"     { Buffer.add_char buffer '\n'; leia_string buffer lexbuf }
+    | '\\' '"'  { Buffer.add_char buffer '"'; leia_string buffer lexbuf }
+    | '\\' '\\' { Buffer.add_char buffer '\\'; leia_string buffer lexbuf }
+    | _ as c    { Buffer.add_char buffer c; leia_string buffer lexbuf }
     | eof       { failwith "String nao foi fechada" }
 
  

@@ -1,12 +1,19 @@
 #load "asabs.cmo";;
 #load "sintatico.cmo";;  
+#load "imprime.cmo"
 #load "lexico.cmo";;
+#load "tabsimb.cmo";;
+#load "ambiente.cmo";;
+#load "semantico.cmo";;
+#load "ambInterpretador.cmo";;
+
+#load "interprete.cmo";;
 
 open Printf;;
 
   
 open Asabs;;
-
+open AmbInterpretador;;
 
 let sintatico lexbuf =
   try
@@ -36,3 +43,16 @@ let anasint arq =
   let _ = close_in ic in
   asa
 
+let anasem_da_string str =
+	let asa = anasint_da_string str in
+  let (tab, at) = Semantico.semantico asa in
+   (tab, at)
+
+let anasem arq =
+	let asa = anasint arq in
+  let (tab, at) = Semantico.semantico asa in
+   (tab, at)
+
+let interpreta arq =
+  let (tab, at) = anasem arq in
+  Interprete.interprete at

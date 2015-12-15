@@ -1,9 +1,11 @@
-type 'a programa = Programa  of string * 'a decs * 'a decs  * 'a cmds
+type 'a programa = 'a decs
 
-and 'a cmd = CmdIf    of  'a * ('a cmd)  * (('a cmd) option)
-    |        CmdWhile of  'a * ('a cmd)
-    |        CmdAtrib of  'a * 'a
-    |        Bloco    of ('a decs) * ('a cmds)
+and 'a cmd = CmdReturn  of 'a option
+    |        CmdIf      of 'a * ('a cmd)  * (('a cmd) option)
+    |        CmdWhile   of 'a * ('a cmd)
+    |        CmdAtrib   of 'a * 'a
+    |        CmdChamada of 'a
+    |        Bloco      of ('a decs) * ('a cmds)
 
 
 and 'a cmds = 'a cmd list
@@ -53,7 +55,7 @@ and 'a decfn = {
 
 and 'a decvar = {
     nome:  string;
-    tipo:  tipo option;
+    tipo:  tipo;
     valor: 'a
 }
 
@@ -62,3 +64,4 @@ and tipo = TBool
     |      TFloat 
     |      TChar
     |      TString
+    |      TVoid

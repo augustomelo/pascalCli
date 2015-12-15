@@ -11,7 +11,7 @@ open Asabs;;
 %token TBOOL TINT TFLOAT TCHAR TSTRING 
 
 %token MAIS MENOS VEZES DIV MOD
-%token NEG MAIOR MENOR MAIORIGUAL MENORIGUAL IGUAL DIFERENTE
+%token MAIOR MENOR MAIORIGUAL MENORIGUAL IGUAL DIFERENTE
 %token NOT AND OR  
 %token TRUE FALSE
 
@@ -23,7 +23,7 @@ open Asabs;;
 %token WRITE READLN
 %token IF THEN ELSE
 %token WHILE DO FOR TO
-%token RETURN FUNCAO PROCEDURE
+%token FUNCAO PROCEDURE
 %token EOF
 
 %start programa
@@ -39,7 +39,13 @@ main: PROGRAM ID PTVIRG
         lista_de_comandos
       END PF
       { 
-          Programa ($2, $4, $5, $7) 
+          $5 @ [ DecFun {
+                        fn_nome    = $2;
+                        fn_formais = [];
+                        fn_tiporet = None;
+                        fn_corpo   = Bloco($4, $7);
+            }]
+           
       }
 
 declaracoesvars: { [] }
@@ -51,7 +57,13 @@ declaracoes: { [] }
     ;
 
 declist: declaracaolist PTPT tipo PTVIRG {
-            List.map (fun n -> DecVar {nome = n; tipo = Some $3; valor = ExpInt 0}) $1 
+            List.map (fun n -> DecVar {nome = n; tipo = $3; valor = match $3 with 
+                                                                    | TBool   -> ExpTrue 
+                                                                    | TInt    -> ExpInt 0
+                                                                    | TFloat  -> ExpFloat 0.0
+                                                                    | TChar   -> ExpChar '0'
+                                                                    | TString -> ExpString "0"
+                                                                    | TVoid   -> ExpInt 0 }) $1 
          }
 
 declaracaolist: variavel VIRG declaracaolist { $1 :: $3 } 
@@ -64,13 +76,13 @@ variavel: ID { $1 }
 declarafuncoes: { [] }
     |           declarafuncoes declarafuncao { $1 @ [$2] }
 
-declarafuncao: FUNCAO ID  APAR argumentos FPAR tipo_retorno_opc PTVIRG
+declarafuncao: FUNCAO ID  APAR argumentos FPAR tipo PTVIRG
                escopo_func
                { 
                    DecFun { 
                            fn_nome    = $2;
                            fn_formais = $4;
-                           fn_tiporet = $6;
+                           fn_tiporet = Some $6;
                            fn_corpo   = $8;
                    }
                }
@@ -95,8 +107,6 @@ resto_argumentos: { [] }
 argumento: ID PTPT tipo { ($1, $3) }
 
 
-tipo_retorno_opc: PTPT tipo { Some $2 }
-
 tipo: TBOOL   { TBool   }
     | TINT    { TInt    }
     | TFLOAT  { TFloat  }
@@ -114,30 +124,33 @@ lista_de_comandos: { [] }
 comandos: cmd_atribuicao { $1 }
     |     cmd_selecao    { $1 }
     |     cmd_iteracao   { $1 }
+    |     cmd_func       { $1 }
+    |     cmd_composto   { $1 }
     ;
 
 cmd_atribuicao: cmd_atrib PTVIRG { $1 }
 
 cmd_atrib: mutavel ATRIB expressao { CmdAtrib($1, $3) }
 
+
 cmd_selecao: IF APAR expressao FPAR THEN 
-             BEGIN 
                 comandos
-             END PTVIRG { CmdIf ($3, $7, None)  }
+             PTVIRG { CmdIf ($3, $6, None)  }
     |        IF APAR expressao FPAR THEN 
-             BEGIN 
                 comandos
-             END 
              ELSE 
-             BEGIN 
                 comandos  
-             END PTVIRG { CmdIf ($3, $7, Some $11)  }
+             PTVIRG { CmdIf ($3, $6, Some $8)  }
 
 
 cmd_iteracao: WHILE APAR expressao FPAR DO
-              BEGIN
                 comandos
-              END PTVIRG { CmdWhile($3, $7) }
+              PTVIRG { CmdWhile($3, $6) }
+
+cmd_func: chamada PTVIRG { CmdChamada $1 }
+
+cmd_composto: BEGIN lista_de_comandos END { Bloco ([], $2) }
+
 
 expressao: exp_or { $1 }
 
@@ -188,7 +201,7 @@ imutavel: APAR expressao FPAR { $2 }
 	|     chamada   { $1 }
     |     constante { $1 }
 
-chamada: ID APAR args FPAR PTVIRG { ExpChamada ($1, $3) }
+chamada: ID APAR args FPAR { ExpChamada ($1, $3) }
 
 args:               { [] }
     | lista_de_args { $1 }

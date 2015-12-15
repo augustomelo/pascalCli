@@ -4,45 +4,59 @@ CAMLYACC=ocamlyacc
 
 compilador: vanguarda retaguarda
 
-retaguarda: gerador.cmo
+vanguarda: sintatico.cmo imprime.cmo lexico.cmo tabsimb.cmo ambiente.cmo semantico.cmo
 
-vanguarda: semantico.cmo sintatico.cmo lexico.cmo
+interprete: vanguarda ambInterpretador.cmi ambInterpretador.cmo interprete.cmo
 
-compsint: sintatico.cmo lexico.cmo
+retaguarda: tradutorRI.cmo linearizador.cmo seleciona.cmo montador.cmo
 
-gerador.cmo: gerador.ml asadec.cmi asabs.cmi tabsimb.cmo
-	$(CAMLC) -c gerador.ml
+seleciona.cmo: asabs.cmo arvoreRI.cmo montador.cmo temp.cmo
+	$(CAMLC) -c seleciona.ml
 
-semantico.cmo: semantico.ml asadec.cmi asabs.cmi tabsimb.cmo
-	$(CAMLC) -c semantico.ml
+linearizador.cmo: arvoreRI.cmo rotulo.cmo linearizador.ml
+	$(CAMLC) -c linearizador.ml
 
-sintatico.cmo: asabs.cmi sintatico.cmi sintatico.ml 
-	$(CAMLC) -c sintatico.ml
+tradutorRI.cmo: asadec.cmo arvoreRI.cmo rotulo.cmo temp.cmo tradutorRI.ml
+	$(CAMLC) -c tradutorRI.ml
 
-lexico.cmo: lexico.ml
-	$(CAMLC) -c lexico.ml
-
-tabsimb.cmo:  asadec.cmi asabs.cmi tabsimb.ml
-	$(CAMLC) -c tabsimb.ml
-
-asadec.cmi: asabs.cmi asadec.ml
+asadec.cmi: asabs.cmo asadec.ml
 	$(CAMLC) -c asadec.ml
 
-asabs.cmi: asabs.ml
-	$(CAMLC) -c asabs.ml
+ambiente.cmo: tabsimb.cmi asabs.cmi asabs.cmo ambiente.cmi ambiente.ml
+	$(CAMLC) -c ambiente.ml
 
-sintatico.ml: sintatico.mly
-	$(CAMLYACC) -v sintatico.mly
+tabsimb.cmo:  asabs.cmo tabsimb.cmi tabsimb.ml
+	$(CAMLC) -c tabsimb.ml
 
-lexico.ml: sintatico.cmi lexico.mll
-	$(CAMLLEX) lexico.mll
+semantico.cmo: ambiente.cmi asabs.cmo semantico.cmi semantico.ml
+	$(CAMLC) -c semantico.ml
 
-sintatico.cmi: sintatico.mli
+sintatico.cmo: asabs.cmo sintatico.cmi sintatico.ml
+	$(CAMLC) -c sintatico.ml
+
+sintatico.cmi: asabs.cmo sintatico.mli
 	$(CAMLC) -c sintatico.mli
 
-sintatico.mli: sintatico.mly
+sintatico.ml sintatico.mli: sintatico.mly
 	$(CAMLYACC) -v sintatico.mly
 
-clean:
-	rm -f *.cmo *.cmi *.*~ lexico.ml sintatico.ml sintatico.mli sintatico.output
+lexico.ml: sintatico.cmi imprime.cmi lexico.mll
+	$(CAMLLEX) lexico.mll
 
+imprime.cmi: sintatico.cmi sintatico.cmo imprime.mli
+	$(CAMLC) -c imprime.mli
+
+imprime.cmo: sintatico.cmi imprime.cmi imprime.ml
+	$(CAMLC) -c imprime.ml
+
+# Regras comuns
+.SUFFIXES: .ml .mli .cmo .cmi 
+.ml.cmo: 
+	$(CAMLC) -c $<
+
+.mli.cmi: 
+	$(CAMLC) -c $<
+
+clean:
+	rm -f lexico.ml sintatico.ml sintatico.mli sintatico.output
+	rm -f *.cm[iox]

@@ -146,7 +146,9 @@ cmd_selecao: IF APAR expressao FPAR THEN
 cmd_iteracao: WHILE APAR expressao FPAR DO
                 comandos
               PTVIRG { CmdWhile($3, $6) }
-
+            | FOR ID ATRIB constante TO  constante DO
+                comandos
+              PTVIRG { CmdAtrib (ExpVar (VarSimples $2), $4); CmdWhile(ExpBin(Igual, ExpVar (VarSimples $2), $6), Bloco([], [CmdAtrib(ExpVar(VarSimples $2), ExpBin(Mais, ExpVar(VarSimples $2), ExpInt 1)); $8])) }
 cmd_func: chamada PTVIRG { CmdChamada $1 }
 
 cmd_composto: BEGIN lista_de_comandos END { Bloco ([], $2) }

@@ -134,7 +134,9 @@ let rec verifica_cmd amb tiporet cmd =
                                     in CmdAtrib (elem_tip, exp_tip)
 
                           | Amb.EntFun { tipo_fn; _ } -> ( match tipo_fn with
-                                        None -> CmdReturn (Some {exp = ExpVoid; tinf = A.TVoid})
+                                        None ->  let _ = tipos_iguais "Funcao do tipo %s nao pode receber o valor do tipo %s"
+                                            TVoid exp2.tinf in
+                                            CmdReturn (Some {exp = ExpVoid; tinf = A.TVoid})
                                       | Some tipo ->  let _ = tipos_iguais "Funcao do tipo %s nao pode receber o valor do tipo %s" 
                                             tipo exp2.tinf in 
                                             CmdReturn (Some exp2)

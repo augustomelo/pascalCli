@@ -1,0 +1,35 @@
+\contentsline {chapter}{\numberline {1}Introdu\c c\~ao}{4}{chapter.1}
+\contentsline {section}{\numberline {1.1}M\'aquina Virtual Cil}{4}{section.1.1}
+\contentsline {section}{\numberline {1.2}Pascal}{4}{section.1.2}
+\contentsline {chapter}{\numberline {2}Configurando o Ambiente}{5}{chapter.2}
+\contentsline {section}{\numberline {2.1}Como executar e testar um programa Pascal para CIL}{5}{section.2.1}
+\contentsline {chapter}{\numberline {3}Constru\c c\~ao do Compilador Pascal}{6}{chapter.3}
+\contentsline {section}{\numberline {3.1}Arvore}{6}{section.3.1}
+\contentsline {section}{\numberline {3.2}Analisador L\'exico}{7}{section.3.2}
+\contentsline {section}{\numberline {3.3}Analisador Sint\'atico}{9}{section.3.3}
+\contentsline {section}{\numberline {3.4}Analisador Sem\^antico}{13}{section.3.4}
+\contentsline {section}{\numberline {3.5}Tabela de S\IeC {\'\i }mbolos}{20}{section.3.5}
+\contentsline {section}{\numberline {3.6}Makefile}{21}{section.3.6}
+\contentsline {section}{\numberline {3.7}Ambiente para Interpretador}{22}{section.3.7}
+\contentsline {subsection}{\numberline {3.7.1}Ambientes}{22}{subsection.3.7.1}
+\contentsline {subsection}{\numberline {3.7.2}Interpretador}{23}{subsection.3.7.2}
+\contentsline {section}{\numberline {3.8}Executando codigo em Ocaml}{30}{section.3.8}
+\contentsline {chapter}{\numberline {4}Exemplos}{33}{chapter.4}
+\contentsline {section}{\numberline {4.1}Exemplo 1:}{33}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Executando}{33}{subsection.4.1.1}
+\contentsline {section}{\numberline {4.2}Exemplo 2:}{35}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Executando}{35}{subsection.4.2.1}
+\contentsline {section}{\numberline {4.3}Exemplo 3:}{37}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Executando}{37}{subsection.4.3.1}
+\contentsline {section}{\numberline {4.4}Exemplo 4:}{39}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}Executando}{39}{subsection.4.4.1}
+\contentsline {section}{\numberline {4.5}Exemplo 5:}{41}{section.4.5}
+\contentsline {subsection}{\numberline {4.5.1}Executando}{41}{subsection.4.5.1}
+\contentsline {section}{\numberline {4.6}Exemplo 6:}{43}{section.4.6}
+\contentsline {subsection}{\numberline {4.6.1}Executando}{43}{subsection.4.6.1}
+\contentsline {section}{\numberline {4.7}Exemplo 7:}{45}{section.4.7}
+\contentsline {subsection}{\numberline {4.7.1}Executando}{45}{subsection.4.7.1}
+\contentsline {section}{\numberline {4.8}Exemplo 8:}{47}{section.4.8}
+\contentsline {subsection}{\numberline {4.8.1}Executando}{47}{subsection.4.8.1}
+\contentsline {section}{\numberline {4.9}Exemplo 9:}{49}{section.4.9}
+\contentsline {subsection}{\numberline {4.9.1}Executando}{49}{subsection.4.9.1}

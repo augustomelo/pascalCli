@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: relatorio2.aux
+The style file: abbrv.bst
+Database file #1: refs.bib
+Warning--entry type for "ppaRef" isn't style-file defined
+--line 21 of file refs.bib
+Warning--entry type for "sdkAndroid" isn't style-file defined
+--line 35 of file refs.bib
+Warning--to sort, need author or key in sdkAndroid
+Warning--empty journal in TrabMiriene
+Warning--empty journal in BytecodeDalvik
+Warning--empty journal in Tutorial
+You've used 5 entries,
+            2118 wiz_defined-function locations,
+            519 strings with 4116 characters,
+and the built_in function-call counts, 976 in all, are:
+= -- 86
+> -- 29
+< -- 0
++ -- 13
+- -- 8
+* -- 39
+:= -- 169
+add.period$ -- 12
+call.type$ -- 5
+change.case$ -- 19
+chr.to.int$ -- 0
+cite$ -- 9
+duplicate$ -- 44
+empty$ -- 97
+format.name$ -- 8
+if$ -- 201
+int.to.chr$ -- 0
+int.to.str$ -- 5
+missing$ -- 3
+newline$ -- 25
+num.names$ -- 8
+pop$ -- 35
+preamble$ -- 1
+purify$ -- 14
+quote$ -- 0
+skip$ -- 39
+stack$ -- 0
+substring$ -- 25
+swap$ -- 2
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 20
+warning$ -- 4
+while$ -- 8
+width$ -- 6
+write$ -- 42
+(There were 6 warnings)

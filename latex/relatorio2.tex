@@ -1,0 +1,565 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage[svgnames]{xcolor}
+\usepackage{courier} %Fonte dos Códigos
+\usepackage{graphicx}
+\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry} % margens
+
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+% Criar links no documento
+\usepackage[pdftex]{hyperref}
+\hypersetup{ pdfborder = {0 0 0}}
+
+
+\renewcommand{\lstlistingname}{Código}
+\renewcommand{\lstlistlistingname}{Lista de Códigos}
+\author{Augusto Duarte Melo}
+\author{Viktor Miranda Martins}
+
+
+% Caption superior dos codigos
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{0pt}#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=2pt, font={bf,footnotesize}}
+%
+
+% Cores para formatação de código
+\usepackage{color}
+\definecolor{vermelho}{rgb}{0.6,0,0} % para strings
+\definecolor{verde}{rgb}{0.25,0.5,0.35} % para comentários
+\definecolor{roxo}{rgb}{0.5,0,0.35} % para palavras-chaves
+\definecolor{azul}{rgb}{0.25,0.35,0.75} % para strings
+\definecolor{cinza-claro}{gray}{0.95}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+%
+
+% Formato dos Códigos
+\lstset{numbers=left, stepnumber=1,
+ firstnumber=1, extendedchars=true, frame=none,
+ basicstyle=\ttfamily, stringstyle=\ttfamily,
+ showstringspaces=false, breaklines=true breakautoindent=true, morecomment=[l]{--}, morecomment=[s]{--[[}{--]]}, captionpos=t,
+ frame = trBL, rulecolor = \color{black},
+ keywordstyle = \color{blue}, % Estilo das palavras chaves
+ commentstyle = \color{dkgreen}, % Estilo dos Comentários
+ stringstyle = \color{mauve}, % Estilo de Strings
+ escapeinside = {\%*}{*)},
+ tabsize=2, 
+ }
+% backgroundcolor = \color{LightGray}
+
+\lstdefinestyle{smali}
+{language=smali, morekeywords={method, public, constructor, .registers, .prologue, .line, invoke-direct, return-void, .end, new-instace, static, sget-object, move-result, mul-float/2addr, const/high16, add-float/2addr, const/high16, div-float/2addr}}
+
+% Para codiogs de Terminal
+	% Definição de novos estilos
+\lstdefinestyle{Bash}
+    {language=bash,frame=single,numbers=none,basicstyle=\footnotesize\ttfamily,
+     morekeywords={cp,mkdir,sudo,tar}}
+
+	% Definição de novos ambientes
+\lstnewenvironment{terminal}
+  {\lstset{style=Bash}}
+  {}
+% 
+
+\def\espbt{\vspace*{0.2cm}}
+
+\begin{document}
+
+%--------- CAPA -------- %
+\begin{center}
+\includegraphics[scale = 0.07]{images/ufu}\\
+\vspace*{0.5cm}
+
+\Large{Faculdade de Computação}\\
+\Large{Universidade Federal de Uberlândia}\\
+
+\vspace*{6cm}
+
+\huge{Construção de Compiladores\\}
+\Huge{Compilador de MiniPascal para\\ Máquina Virtual CIL}
+
+\vspace*{6cm}
+
+\Large{Augusto Duarte Melo}\\
+\Large{\textit{augustomelo92@gmail.com}}\\
+\Large{Viktor Miranda Martins}\\
+\large{\textit{viktormm010@yahoo.com.br}}\\
+\end{center}
+%--------- CAPA -------- %
+
+
+\tableofcontents 
+\lstlistoflistings
+
+
+\chapter{Introdução}
+
+
+
+\section{Máquina Virtual Cil}
+
+A Common Intermediate Language (ou CIL) é uma linguagem de programação de baixo nível do ambiente de programação da Microsoft. O código de mais alto nível do ambiente .NET Framework é compilado em código CIL, que é assemblado em código chamado bytecode. CIL é um código orientado a objeto e executado por uma máquina virtual utilizando pilha.
+A CIL tinha inicialmente o nome de Microsoft Intermediate Language(ou MSIL), na época das versões beta da linguagem .NET.Depois da standarização do C SHarp e da CIL, o bytecode foi oficialmente referenciado sob a designação de CIL. Os utilizadores mais antigos da tecnologia continuam no entanto a utilizar o termo MSIL.
+
+
+\section{Pascal}
+
+Pascal é uma linguagem de programação estruturada, que recebeu este nome em homenagem ao matemático e físico Blaise Pascal. Foi criada em 1970 pelo suíço Niklaus Wirth, tendo em mente encorajar o uso de código estruturado.
+Diz o criador da linguagem Pascal que ela foi criada simultaneamente para ensinar programação estruturada e para ser utilizada na sua fábrica de software.
+Pascal é normalmente uma das linguagens de escolha para ensinar programação, junto com Scheme, C e Fortran. Comercialmente a linguagem foi sucedida pela criação da linguagem Object Pascal.
+
+
+\lstinputlisting[language = Pascal, caption={Exemplo de código Pascal: HelloWorld.pas}]{pas/HelloWorld.pas}
+
+\chapter{Configurando o Ambiente}
+
+Os passos que se seguem são as instruções para instalação do mono-complete que é usado para criar um arquivo c sharp (C\#) , para podermos fazer a engenharia reversa e obter um arquivo il que é um arquivo executavel da maquina CIL{Tutorial}.
+
+Assim, a instalação será feita por linha de comando com o comando abaixo: \\
+
+\begin{terminal}
+> sudo apt-get install mono-complete
+\end{terminal}
+
+
+\section{Como executar e testar um programa Pascal para CIL}
+
+Depois de instalar o mono-complete e criar um programa em pascal, teremos que criar um programa em C\# que terá que ser igual ao .pas, porem com a estrutura do C\# para sabermos como funciona a estrutura de um programa em CIL. Apos ter criado o .cs (programa em C\#)nesse caso usaremos HelloWorld.cs, iremos transformar este programa para um assembly. Primeiro vamos compilar o .cs:
+
+\begin{terminal}
+mono-csc HelloWorld.cs
+\end{terminal}
+
+Depois quer executarmos esse comando, teremos um HelloWorld.exe e iremos transformar para .il que é um arquivo CIL pelo comando abaixo:
+
+\begin{terminal}
+monodis HelloWorld.exe --output=HelloWorld.il
+\end{terminal}
+
+Para executar o programa em CIL usaremos os comandos abaixo:
+
+\begin{terminal}
+ilasm HelloWorld.il
+\end{terminal}
+
+Para executar o codigo em C\# usaremos os comandos abaixo:
+
+\begin{terminal}
+mono HelloWord.exe
+\end{terminal}
+
+Depois de termos tanto o HelloWord.il (HelloWord em CIL) e o HelloWord.exe(HelloWord em C\#), iremos comparar os dois para vermos se o codigo de ambos estão iguais, pois o codigo em C\# tem que ser igual o de CIL.
+Se os dois estiverem iguais, agora saberemos como funciona a estrutura CIL e assim poderemos mapear o programa pascal para CIL.
+
+
+
+
+\chapter{Construção do Compilador Pascal}
+
+
+\section{Arvore}
+
+O arquivo \textit{asa.ml} define estruturas, tipos, tabelas e a base do que é utilizado no compilador. E está descrito a seguir.
+
+\lstinputlisting[caption={Arquivo asabs.ml}]{codes/asabs.ml}
+\vspace*{0.5cm}
+
+\section{Analisador Léxico}
+
+A primeira fase de um compilador é a análise léxica. Um analisador léxico tem a função de varrer o código fonte e a partir das palavras e caracteres encontrados gerar \textit{tokens}. Essa etapa filtra os caracteres encontrados e gera uma estrutura utilizando o que realmente importa no contexto do programa, espaços em brancos, por exemplo, podem ser descartados em determinadas situações e linguagens.
+
+Dessa forma, erros encontrados como por exemplo errar na digitação de uma palavra reservada, colocar uma vírgula ou parênteses no lugar errado são detectados pelo analisador léxico e o mesmo não avança para as outras fases.
+
+\lstinputlisting[caption={Analisador Léxico}]{codes/lexico.mll}
+\vspace*{0.5cm}
+
+\section{Analisador Sintático}
+
+O analisador sintático tem a função de a partir do código gerado pelo analisador léxico gerar uma estrutura de árvore que será passada à próxima fase do compilador. Dessa forma, o semântico, é capaz de identificar os tokens gerados pelo léxico e construir uma árvore sintática através de um conjunto de regras definidas no mesmo. 
+
+Segue o código do analisador sintático.
+
+\lstinputlisting[caption={Analisador Sintático}]{codes/sintatico.mly}
+\vspace*{0.5cm}
+
+\section{Analisador Semântico}
+
+Após a análise sintática a árvore gerada é passada para o analisador semântico. Que faz a verificação dos tipos das operações e comandos. 
+
+Ao final do analisador semântico é passado ao gerador a árvore obtida no analisador sintático já completa com todos os tipos inferidos. Para o escopo deste trabalho não foram analisadas funções na linguagem Pascal que permanecem com um tipo genérico até a chamada da própria função.
+
+\lstinputlisting[caption={Analisador Semântico}]{codes/semantico.ml}
+\vspace*{0.5cm}
+
+
+\section{Tabela de Símbolos}
+
+
+\lstinputlisting[caption={Tabela de Símbolos}]{codes/tabsimb.ml}
+\vspace*{0.5cm}
+\lstinputlisting[caption={Tabela de Símbolos}]{codes/tabsimb.mli}
+\vspace*{0.5cm}
+
+\section{Makefile}
+
+Depois que todas as etapas foram construídas, iremos usar um artificio para facilitar a compilação de todos os arquivos que foram criados, para isso usaremos o Makefile. Para usar esse artificil, iremos no terminal, na pasta onde esta os arquivos criados e depois executaremos o comando "make" para compilar todas as etapas do nosso compilador. Para voltar ao inicio, onde não exista os arquivos gerados pela compilação, basta digitar o comando "make clean" e voltara a ter apenas os arquivos originais.
+
+
+\lstinputlisting[caption={Make file}]{codes/makefile}
+\vspace*{0.5cm}
+
+\section{Ambiente para Interpretador}
+\subsection{Ambientes}
+\lstinputlisting[caption={Ambiente.ml}]{codes/ambiente.ml}
+\vspace*{0.5cm}
+\lstinputlisting[caption={Ambiente.mli}]{codes/ambiente.mli}
+\vspace*{0.5cm}
+\subsection{Interpretador}
+\lstinputlisting[caption={AmbInterpretador.ml}]{codes/ambInterpretador.ml}
+\vspace*{0.5cm}
+\lstinputlisting[caption={AmbInterpretador.ml}]{codes/ambInterpretador.mli}
+\vspace*{0.5cm}
+\lstinputlisting[caption={Interpretador.ml}]{codes/interprete.ml}
+\vspace*{0.5cm}
+\section{Executando codigo em Ocaml}
+
+Para utilizar os códigos aqui apresentados deve-se abrir o terminal e entrar no interpretador Ocaml. Isso será feito utilizando o comando a seguir.
+
+\begin{terminal}
+	make interprete
+\end{terminal}
+
+Apos apertar enter aparecera a seguinte imagem:
+
+\begin{figure}[!h]	
+	\center	
+	\includegraphics[width=16cm]{images/make}
+\end{figure}
+
+Depois digite:
+
+\begin{terminal}
+	> rlwrap ocaml
+\end{terminal}
+
+E deve aparecer logo em seguida:
+
+\begin{terminal}
+	OCaml version 4.01.0
+	# 
+\end{terminal}
+
+O arquivo que será utilizado para utilizar o interpretador ou algumas funções auxiliares será o arquivo a seguir:
+
+\lstinputlisting[caption={CarregaInter}]{codes/carregaInter.ml}
+\vspace*{0.5cm}
+
+Para utilizar o arquivo carregaInter.ml no Ocaml deve-se utilizar o comando a seguir:
+
+\begin{terminal}
+	#  #use carregaInter.ml;;
+\end{terminal}
+
+\begin{figure}[!h]	
+	\center	
+	\includegraphics[width=16cm]{images/carregaInter}
+\end{figure}
+
+\newpage
+
+Dessa forma, irá aparecer no terminal as funções implementadas dentro do arquivo e que podem ser utilizadas dentro do interpretador Ocaml.
+
+
+
+Podemos usar 3 tipos de consutas:
+\begin{terminal}
+	anasint "exemplo/ex7.pas"
+\end{terminal}
+
+Para termos a analise sintatica.
+
+\begin{terminal}
+	anasem "exemplo/ex7.pas"
+\end{terminal}
+Para termos a analise semantica.
+
+\begin{terminal}
+	interpreta "exemplo/ex7.pas"
+\end{terminal}
+O interpreta vai interpretar a sainda do semantico.
+
+
+
+
+	
+
+\chapter{Exemplos}
+
+Nos exemplos a seguir temos a execução do anasint, anasem e intepreta nesta mesma ordem.
+
+\section{Exemplo 1:}
+
+\lstinputlisting[caption={Exemplo1}]{codes/ex1.pas}
+\vspace*{0.5cm}
+
+
+\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex1}
+	\end{figure}
+		
+
+\begin{figure}[!h]	
+	\center	
+	\includegraphics[width=16cm]{images/ex1-2}
+			
+\end{figure}
+
+\newpage
+\begin{figure}[!h]	
+	\center	
+	\includegraphics[width=16cm]{images/ex1-3}
+			
+\end{figure}
+
+\newpage
+\section{Exemplo 2:}
+
+\lstinputlisting[caption={Exemplo2}]{codes/ex2.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex2}
+				
+	\end{figure}
+
+
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex2-2}
+			
+	\end{figure}
+
+\newpage
+	
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex2-3}
+			
+	\end{figure}
+	
+\newpage
+\section{Exemplo 3:}
+
+\lstinputlisting[caption={Exemplo3}]{codes/ex3.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex3}
+				
+	\end{figure}
+	
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex3-2}
+			
+	\end{figure}
+	
+\newpage
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex3-3}
+				
+	\end{figure}
+
+\newpage
+\section{Exemplo 4:}
+
+\lstinputlisting[caption={Exemplo4}]{codes/ex4.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex4}
+				
+	\end{figure}
+	
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex4-2}
+					
+	\end{figure}
+
+\newpage
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex4-3}
+				
+	\end{figure}
+
+
+
+\newpage	
+\section{Exemplo 5:}
+
+\lstinputlisting[caption={Exemplo5}]{codes/ex5.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex5}
+			
+	\end{figure}
+
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex5-2}
+			
+	\end{figure}
+
+\newpage	
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex5-3}
+					
+	\end{figure}
+
+\newpage
+\section{Exemplo 6:}
+
+\lstinputlisting[caption={Exemplo6}]{codes/ex6.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex6}
+				
+	\end{figure}
+	
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex6-2}
+			
+	\end{figure}
+	
+\newpage
+\begin{figure}[!h]	
+	\center	
+	\includegraphics[width=16cm]{images/ex6-3}
+		
+\end{figure}
+	
+
+\newpage
+\section{Exemplo 7:}
+
+\lstinputlisting[caption={Exemplo7}]{codes/ex7.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex7}
+			
+	\end{figure}
+	
+
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex7-2}
+			
+	\end{figure}
+
+\newpage
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex7-3}
+				
+	\end{figure}
+\newpage
+\section{Exemplo 8:}
+
+\lstinputlisting[caption={Exemplo8}]{codes/ex8.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex8}
+					
+	\end{figure}
+	
+
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex8-2}
+			
+	\end{figure}
+
+\newpage
+	
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex8-3}
+				
+	\end{figure}
+\newpage
+\section{Exemplo 9:}
+
+\lstinputlisting[caption={Exemplo9}]{codes/ex9.pas}
+\vspace*{0.5cm}
+
+	\subsection{Executando}
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex9}
+				
+	\end{figure}
+	
+
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex9-2}
+					
+	\end{figure}
+	
+\newpage
+
+	\begin{figure}[!h]	
+		\center	
+		\includegraphics[width=16cm]{images/ex9-3}
+					
+	\end{figure}
+\end{document}

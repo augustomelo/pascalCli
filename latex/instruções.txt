@@ -1,0 +1,14 @@
+sudo apt-get install mono-complete
+
+// Tansforming a c# program to assembly.
+// First you have to compile it
+mono-csc file.cs
+
+// Disasembly it
+monodis file.exe --output=filename.il
+
+//To compile it
+ilasm filename.il
+
+//
+mono file.exe

@@ -1,0 +1,26 @@
+\begin{thebibliography}{1}
+
+\bibitem{sdkAndroid}
+O que e o sdk do android?
+
+\bibitem{TrabMiriene}
+P.~d. F. e. T.~M. Miriene Pereira~Dayrell.
+\newblock Compiladores.
+\newblock 2013.
+
+\bibitem{BytecodeDalvik}
+T.~A. O.~S. Project.
+\newblock Bytecode for the dalvik vm.
+\newblock 2007.
+
+\bibitem{Tutorial}
+A.~S. Soares.
+\newblock Instalando a dalvik e o ambiente de desenvolvimento do android no
+  ubuntu 13.04.
+\newblock 2013.
+
+\bibitem{ppaRef}
+R.~Zimmermann.
+\newblock Ppa, que bicho e esse?, Jan. 2012.
+
+\end{thebibliography}

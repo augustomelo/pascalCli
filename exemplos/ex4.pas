@@ -1,4 +1,4 @@
-program ex4;
+program main;
 function teste () integer;
 var a, x, y: integer;
 	b: real;

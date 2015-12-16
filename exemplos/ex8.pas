@@ -14,7 +14,6 @@ begin
 		inicio := inicio + 1;
 	end;
 
-	teste := inicio;
 end;
 begin 
 	printInt(pares(1, 10));	
